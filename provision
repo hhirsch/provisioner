@@ -1,0 +1,27 @@
+#!/bin/bash
+while true; do
+    read -r -p "Please enter a hostname or IP address (or press Ctrl+C to exit): " hostname
+    # Check if the input is a valid IP address
+    if [[ $hostname =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "You entered a valid IP address: $hostname"
+        break
+    # Check if the input is a valid hostname
+    elif [[ $hostname =~ ^[a-zA-Z0-9.-]+$ ]]; then
+        echo "You entered a valid hostname: $hostname"
+        break
+    else
+        echo "Invalid input. Please try again."
+    fi
+done
+
+payload="/root/payload.sh"
+status=$(ssh -o BatchMode=yes -o ConnectTimeout=5 root@"$hostname" echo ok 2>&1)
+
+if [[ $status == ok ]] ; then
+  scp data/payload.sh root@"$hostname":"$payload"
+  ssh root@"$hostname" chmod +x "$payload"
+  ssh root@"$hostname" "$payload"
+  ssh root@"$hostname" rm "$payload"
+else
+  echo "Unable to connect to host."
+fi

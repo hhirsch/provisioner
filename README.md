@@ -1,0 +1,71 @@
+# Provisioner
+> [!WARNING]
+> This tool is designed to be run either on a brand new system or a VM.
+> It is not tested to be production ready.
+> It will make your system unstable and insecure and will delete and/or expose your data.
+> Use it at your own risk. You are responsible for everything you do with the provided software.
+
+A simple tool to deploy a payload to your server and run it.
+You can switch the payload with your own code. 
+
+> [!IMPORTANT]
+> The default payload is created for Debian 12 specifically the apt commands called in this script
+> will not work on most systems.
+The default payload is created for a Debian 12 server and will install puppet and git on the server, create a control repository for the root user and create a git hook that will run puppet on every file in the manifest directory in the repository whenever code is pushed.
+
+When you run the provision script it will prompt you to enter a server name to deploy the payload to.
+There is no confirmation step in the provision script, it will try to deploy and run immediately.
+
+# Why You Would Want To Use The Payload?
+It is just a simple way to bootstrap puppet standalone with a git based worflow.
+# Why You Would Want To Use The Provisioner With A Custom Payload?
+The provision script combined with your custom payload will add value to your workflow if for now you have been maintaining your server
+exclusively over ssh without any special tooling. 
+You'll go from 0 reproducability to some reproduceability without a steep learning curve.
+
+# Usage
+If the provision script is not executable, make it executable with
+```
+chmod +x provision
+```
+
+First you deploy the payload and run it.
+Type on the client:
+```
+./provision
+```
+You will be promted for the server host name or IP.
+Confirm with enter.
+
+Clone the repository with:
+```
+git clone root@<server name>:/root/control.git
+```
+
+Add hello.pp to the manifests directory with the following content:
+```
+file {'/data/helloworld.txt':
+  ensure  => present,
+  content => "Hello World!",
+}
+```
+
+Push and you should see 1 success in green under events in the generated report.
+```
+git push origin main
+```
+
+# Testing With Vagrant
+You can start a vagrant VM to test the included payload with:
+```
+vagrant up
+```
+
+To get the IP of the VM type:
+```
+vagrant ssh-config
+```
+
+When you clone the repository as instructed above you will be prompted for a password.
+Use the password "vagrant" to clone the repository.
+Push the example (put the hello.pp into the manifests directory) to the repository to have it run by puppet on the VM system.
