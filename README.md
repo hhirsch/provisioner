@@ -11,7 +11,8 @@ You can switch the payload with your own code.
 > [!IMPORTANT]
 > The default payload is created for Debian 12 specifically the apt commands called in this script
 > will not work on most systems.
-The default payload is created for a Debian 12 server and will install puppet and git on the server, create a control repository for the root user and create a git hook that will run puppet on every file in the manifest directory in the repository whenever code is pushed.
+
+The default payload will install puppet and git on the server, create a control repository for the root user and create a git hook that will run puppet on every file in the manifest directory in the repository whenever code is pushed.
 
 When you run the provision script it will prompt you to enter a server name to deploy the payload to.
 There is no confirmation step in the provision script, it will try to deploy and run immediately.
