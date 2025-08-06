@@ -8,6 +8,10 @@
 Provisioner is a simple tool to deploy a payload to your server and run it.
 You can switch the payload with your own code. 
 
+Copyright © 2025 Henry Hirsch  
+This program is licensed under the GNU General Public License v3.  
+See http://www.gnu.org/licenses/gpl-3.0.html for details.  
+
 > [!IMPORTANT]
 > The default payload is created for Debian 12 specifically the apt commands called in this script
 > will not work on most systems.
