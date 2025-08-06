@@ -5,7 +5,7 @@
 > It will make your system unstable and insecure and will delete and/or expose your data.
 > Use it at your own risk. You are responsible for everything you do with the provided software.
 
-A simple tool to deploy a payload to your server and run it.
+Provisioner is a simple tool to deploy a payload to your server and run it.
 You can switch the payload with your own code. 
 
 > [!IMPORTANT]
