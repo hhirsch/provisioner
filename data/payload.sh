@@ -21,7 +21,6 @@ handle_interrupt() {
 }
 
 trap handle_interrupt INT
-trap clean_up EXIT
 apt-get update
 
 apt-get install -y git ruby-rubygems || {

@@ -1,14 +1,21 @@
 #!/bin/bash
-vagrant up
+vagrant ssh -c "sudo rm -rf /root/control.git"
+#vagrant ssh -c "sudo mkdir /root/control.git"
+#vagrant ssh -c "sudo git init --bare /root/control.git"
+#vagrant ssh -c "sudo git init --bare /root/control.git"
+vagrant ssh -c "sudo bash /data/payload.sh"
+echo "You need a local RSA key if you want to login without a password."
 ip_address=$(vagrant ssh-config | grep HostName | awk '{print $2}')
 echo "Host available under $ip_address"
 rm ./data/helloworld.txt
 original_dir=$(pwd)
 temp_dir=$(mktemp -d)
 cd "$temp_dir"
+echo "Temp directory is $temp_dir."
 echo "Use the password \"vagrant\"."
 git clone root@"$ip_address":/root/control.git 
 cd control
+ls
 mkdir manifests
 cp "$original_dir"/example/manifests/hello.pp manifests/hello.pp
 cat << 'PUPPET' > Puppetfile
@@ -24,6 +31,13 @@ echo "Use the password \"vagrant\"."
 git_output=$(git push origin main 2>&1)
 echo "$git_output"
 if echo "$git_output" | grep -q "Success: 1"; then
+echo "   ▄▄▄▄"
+echo "  ▄█▀▀▀▀█"
+echo " ██▄       ██    ██   ▄█████▄   ▄█████▄   ▄████▄   ▄▄█████▄  ▄▄█████▄"
+echo "  ▀████▄   ██    ██  ██▀    ▀  ██▀    ▀  ██▄▄▄▄██  ██▄▄▄▄ ▀  ██▄▄▄▄ ▀"
+echo "      ▀██  ██    ██  ██        ██        ██▀▀▀▀▀▀   ▀▀▀▀██▄   ▀▀▀▀██▄"
+echo " █▄▄▄▄▄█▀  ██▄▄▄███  ▀██▄▄▄▄█  ▀██▄▄▄▄█  ▀██▄▄▄▄█  █▄▄▄▄▄██  █▄▄▄▄▄██"
+echo "  ▀▀▀▀▀     ▀▀▀▀ ▀▀    ▀▀▀▀▀     ▀▀▀▀▀     ▀▀▀▀▀    ▀▀▀▀▀▀    ▀▀▀▀▀▀"
     echo "Success: The post receive hook was executed. "
 else
     echo "No success: The expected output was not found."
@@ -31,4 +45,3 @@ fi
 cd ..
 rm -r "$temp_dir"
 cd "$original_dir"
-vagrant destroy

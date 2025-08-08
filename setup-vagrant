@@ -1,0 +1,11 @@
+#!/bin/bash
+echo "You need a local RSA key if you want to login without a password."
+vagrant up
+vagrant ssh -c "sudo mkdir -p /root/.ssh"
+vagrant ssh -c "sudo chmod 700 /root/.ssh"
+vagrant upload  ~/.ssh/id_rsa.pub
+vagrant ssh -c "sudo cp /home/vagrant/id_rsa.pub /root/.ssh/authorized_keys"
+vagrant ssh -c "sudo chmod 600 /root/.ssh/authorized_keys"
+ip_address=$(vagrant ssh-config | grep HostName | awk '{print $2}')
+echo "Host available under $ip_address"
+rm ./data/helloworld.txt

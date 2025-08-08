@@ -61,6 +61,16 @@ git push origin main
 ```
 
 # Automatic Testing With Vagrant
+> [!IMPORTANT]
+> When prompted for a password use the password "vagrant".
+> Vagrant might also prompt you for your current users password.
+> If you don't want to enter the password create an RSA key.
+
+Bring Vagrant Up With
+```
+./setup-vagrant
+```
+
 Run
 ```
 ./test
