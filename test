@@ -1,8 +1,5 @@
 #!/bin/bash
 vagrant ssh -c "sudo rm -rf /root/control.git"
-#vagrant ssh -c "sudo mkdir /root/control.git"
-#vagrant ssh -c "sudo git init --bare /root/control.git"
-#vagrant ssh -c "sudo git init --bare /root/control.git"
 vagrant ssh -c "sudo bash /data/payload.sh"
 echo "You need a local RSA key if you want to login without a password."
 ip_address=$(vagrant ssh-config | grep HostName | awk '{print $2}')
@@ -43,5 +40,7 @@ else
     echo "No success: The expected output was not found."
 fi
 cd ..
-rm -r "$temp_dir"
+chmod -R 777 "$temp_dir"
+echo "Delete: $temp_dir (y/n)?"
+rm -rf --interactive=once "$temp_dir"
 cd "$original_dir"

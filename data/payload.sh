@@ -23,15 +23,18 @@ handle_interrupt() {
 trap handle_interrupt INT
 apt-get update
 
-apt-get install -y git ruby-rubygems || {
+apt-get install -y --no-install-recommends git ruby-rubygems || {
     echo "Failed to install ruby. Aborting."
     exit 1
 }
 
-gem install r10k puppet || {
-    echo "Failed to install r10k and puppet. Aborting."
-    exit 1
-}
+if ! gem list -i r10k; then
+  gem install r10k
+fi
+
+if ! gem list -i puppet; then
+  gem install puppet
+fi
 
 cd /root || {
     echo "Failed to change directory to /root. Aborting."
