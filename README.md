@@ -60,7 +60,14 @@ Push and you should see 1 success in green under events in the generated report.
 git push origin main
 ```
 
-# Testing With Vagrant
+# Automatic Testing With Vagrant
+Run
+```
+./test
+```
+And follow the instructions on screen.
+
+# Manual Testing With Vagrant
 You can start a vagrant VM to test the included payload with:
 ```
 vagrant up
