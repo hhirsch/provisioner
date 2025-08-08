@@ -6,7 +6,7 @@ clean_up () {
             exit 1
         }
         echo "Cleaning up."
-        apt-get remove --auto-remove -y puppet git
+        apt-get remove --auto-remove -y puppet git ruby-rubygems
         if [ -d control.git ]; then
             rm -r control.git || echo "Unable to clean up directory."
         else
@@ -23,8 +23,14 @@ handle_interrupt() {
 trap handle_interrupt INT
 trap clean_up EXIT
 apt-get update
-apt-get install -y puppet git || {
-    echo "Failed to install puppet and git. Aborting."
+
+apt-get install -y git ruby-rubygems || {
+    echo "Failed to install ruby. Aborting."
+    exit 1
+}
+
+gem install r10k puppet || {
+    echo "Failed to install r10k and puppet. Aborting."
     exit 1
 }
 
@@ -40,6 +46,7 @@ cd control.git || {
     echo "Failed to change directory to control.git. Aborting."
     exit 1
 }
+full_repo_path=$(pwd)
 git config --global init.defaultBranch main || {
     echo "Failed to configure git. Aborting."
     exit 1
@@ -55,14 +62,23 @@ cd hooks || {
     exit 1
 }
 
-SCRIPT="post-receive"
-echo "#!/bin/bash" > $SCRIPT
-echo "echo \"Running receive hook\"" >> $SCRIPT
-echo "WORKING_DIR=\"/root/checkout\"" >> $SCRIPT
-echo "mkdir -p \"\$WORKING_DIR\"" >> $SCRIPT
-echo "cd \"\$WORKING_DIR\" || { echo \"Error: Failed to change directory to \$WORKING_DIR\"; exit 1; }" >> $SCRIPT
-echo "GIT_WORK_TREE=\"\$WORKING_DIR\" GIT_DIR=/root/control.git git checkout -f" >> $SCRIPT
-echo "puppet apply --summarize \$WORKING_DIR" >> $SCRIPT
-echo "rm -r \"\$WORKING_DIR\"" >> $SCRIPT
-chmod +x "$SCRIPT"
-
+cat << 'POST_RECEIVE' > post-receive
+#!/bin/bash
+echo "Running receive hook"
+WORKING_DIR="/root/checkout"
+mkdir -p "$WORKING_DIR"
+cd "$WORKING_DIR" || { echo "Error: Failed to change directory to $WORKING_DIR"; exit 1; }
+GIT_WORK_TREE="$WORKING_DIR" GIT_DIR=/root/control.git git checkout -f
+echo "Current directory: $(pwd)"
+echo "Listing files:"
+if [ -f Puppetfile ]; then
+    echo "Puppetfile found. Running r10k puppetfile install..."
+    r10k -v info puppetfile install
+else
+    echo "No Puppetfile found. Not installing any modules."
+fi
+ls modules
+puppet apply --modulepath="$WORKING_DIR/modules" --debug --summarize $WORKING_DIR/manifests
+rm -r "$WORKING_DIR"
+POST_RECEIVE
+chmod +x post-receive
