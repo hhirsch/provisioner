@@ -1,5 +1,7 @@
 #!/bin/bash
+echo "Deleting repository from previous run."
 vagrant ssh -c "sudo rm -rf /root/control.git"
+echo "Redeploying Payload."
 vagrant ssh -c "sudo bash /data/payload.sh"
 echo "You need a local RSA key if you want to login without a password."
 ip_address=$(vagrant ssh-config | grep HostName | awk '{print $2}')
