@@ -22,7 +22,7 @@ When you run the provision script it will prompt you to enter a server name to d
 There is no confirmation step in the provision script, it will try to deploy and run immediately.
 
 # Why You Would Want To Use The Payload?
-It is just a simple way to bootstrap puppet standalone with a git based worflow either on a server or a vagrant VM.
+It is just a simple way to bootstrap puppet standalone with a git based workflow either on a server or a vagrant VM.
 # Why You Would Want To Use The Provisioner With A Custom Payload?
 The provision script combined with your custom payload will add value to your workflow if for now you have been maintaining your server
 exclusively over ssh without any special tooling. 
