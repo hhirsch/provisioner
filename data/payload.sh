@@ -1,30 +1,43 @@
 #!/bin/bash
-clean_up () {
-    if [ $? -eq 1 ]; then
-        cd /root || {
-            echo "Unable to clean up."
-            exit 1
-        }
-        echo "Cleaning up."
-        apt-get remove --auto-remove -y puppet git ruby-rubygems
-        if [ -d control.git ]; then
-            rm -r control.git || echo "Unable to clean up directory."
-        else
-            echo "Nothing to clean up."
-        fi
-    fi
-}
-
 handle_interrupt() {
     echo "Script interrupted by user."
     exit 1
 }
 
+write_git_hook() {
+cat << 'POST_RECEIVE' > post-receive
+#!/bin/bash
+echo "Running receive hook"
+WORKING_DIR="/root/checkout"
+mkdir -p "$WORKING_DIR"
+cd "$WORKING_DIR" || { echo "Error: Failed to change directory to $WORKING_DIR"; exit 1; }
+GIT_WORK_TREE="$WORKING_DIR" GIT_DIR=/root/control.git git checkout -f
+if [ -f Puppetfile ]; then
+    echo "Puppetfile found. Running r10k puppetfile install..."
+    r10k puppetfile install
+else
+    echo "No Puppetfile found. Not installing any modules."
+fi
+ls modules
+puppet apply --modulepath="$WORKING_DIR/modules" --summarize $WORKING_DIR/manifests
+rm -r "$WORKING_DIR"
+POST_RECEIVE
+chmod +x post-receive
+}
+
+
+if [[ -d /root/control.git ]]; then
+    echo "Control repository already exists."
+    echo "Updating git hook, skipping other steps."
+    write_git_hook()
+    exit 0
+fi
+
 trap handle_interrupt INT
 apt-get update
 
 apt-get install -y --no-install-recommends git ruby-rubygems || {
-    echo "Failed to install ruby. Aborting."
+    echo "Failed to install packages. Aborting."
     exit 1
 }
 
@@ -64,23 +77,4 @@ cd hooks || {
     exit 1
 }
 
-cat << 'POST_RECEIVE' > post-receive
-#!/bin/bash
-echo "Running receive hook"
-WORKING_DIR="/root/checkout"
-mkdir -p "$WORKING_DIR"
-cd "$WORKING_DIR" || { echo "Error: Failed to change directory to $WORKING_DIR"; exit 1; }
-GIT_WORK_TREE="$WORKING_DIR" GIT_DIR=/root/control.git git checkout -f
-echo "Current directory: $(pwd)"
-echo "Listing files:"
-if [ -f Puppetfile ]; then
-    echo "Puppetfile found. Running r10k puppetfile install..."
-    r10k -v info puppetfile install
-else
-    echo "No Puppetfile found. Not installing any modules."
-fi
-ls modules
-puppet apply --modulepath="$WORKING_DIR/modules" --debug --summarize $WORKING_DIR/manifests
-rm -r "$WORKING_DIR"
-POST_RECEIVE
-chmod +x post-receive
+write_git_hook()
