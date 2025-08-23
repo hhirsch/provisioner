@@ -29,7 +29,8 @@ chmod +x post-receive
 if [[ -d /root/control.git ]]; then
     echo "Control repository already exists."
     echo "Updating git hook, skipping other steps."
-    write_git_hook()
+    cd /root/control.git/hooks/
+    write_git_hook
     exit 0
 fi
 
@@ -77,4 +78,4 @@ cd hooks || {
     exit 1
 }
 
-write_git_hook()
+write_git_hook
